@@ -1,23 +1,51 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import Router from "next/navigation";
+import { useRouter } from "next/navigation";
 import axios from "axios";
+import toast from "react-hot-toast";
+
 export default function Login() {
-  // Handle user data
+  const router = useRouter();
   const [user, setUser] = React.useState({
     password: "",
     email: "",
   });
+  const [buttonDisabled, setButtonDisabled] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Handle Login
-  const onLogin = async () => {};
+  const onLogin = async (e: any) => {
+    e.preventDefault(); // Prevent default form submission behavior
+    try {
+      setLoading(true);
+      const response = await axios.post("/api/users/login", user);
+      console.log("Login success", response.data);
+      toast.success("Login Success.");
+      router.push("/profile");
+    } catch (error: any) {
+      console.log("Login failed.", error.message);
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Validate Form data
+    if (user.email.length > 0 && user.password.length > 0) {
+      setButtonDisabled(false);
+    } else {
+      setButtonDisabled(true);
+    }
+  }, [user]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white text-gray-700 p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
-        <form>
+        <h1 className="text-2xl font-bold mb-6 text-center">
+          {loading ? "Processing" : "Login"}
+        </h1>
+        <form onSubmit={onLogin}>
           <div className="mb-4">
             <label
               htmlFor="email"
@@ -57,10 +85,10 @@ export default function Login() {
           <div className="flex flex-col gap-2">
             <button
               type="submit"
-              onClick={onLogin}
+              disabled={buttonDisabled || loading}
               className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Sign Up
+              {loading ? "Logging in..." : "Login"}
             </button>
             <div className="mt-1 flex text-sm gap-1">
               <span className=" inline-block">Don't have an account?</span>
