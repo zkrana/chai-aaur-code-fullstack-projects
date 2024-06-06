@@ -52,7 +52,7 @@ export default function SignUp() {
   }, [user]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="sm:min-h-[calc(100vh-152px)] min-h-[calc(100vh-120px)]  flex items-center justify-center bg-gray-100">
       <div className="bg-white text-gray-700 p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">
           {loading ? "Processing" : "Sign Up Page"}

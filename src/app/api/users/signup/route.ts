@@ -2,22 +2,23 @@ import { connect } from "@/app/config/dbConfig";
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { sendEmail } from "@/helpers/mailer";
 
 connect();
 
 export async function POST(request: NextRequest) {
   try {
-    // Post request body
-    const reqbody = await request.json();
+    // Parse request body
+    const reqBody = await request.json();
 
     // Destructure user data from request body
-    const { username, email, password } = reqbody;
-    console.log(reqbody);
+    const { username, email, password } = reqBody;
+    console.log(reqBody);
 
     // Check if user already exists
-    const userData = await User.findOne({ email });
+    const existingUser = await User.findOne({ email });
 
-    if (userData) {
+    if (existingUser) {
       return NextResponse.json(
         {
           error: "User already exists.",
@@ -28,29 +29,33 @@ export async function POST(request: NextRequest) {
 
     // Hash the password
     const salt = await bcrypt.genSalt(10);
-    const hashPass = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create new user
     const newUser = new User({
       username,
       email,
-      password: hashPass,
+      password: hashedPassword,
     });
 
     // Save new user
-    const saveNewUser = await newUser.save();
-    console.log(saveNewUser);
+    const savedUser = await newUser.save();
+    console.log(savedUser);
+
+    // Send verification email
+    await sendEmail({ email, emailtype: "VERIFY", userId: savedUser._id });
 
     // Return user created
     return NextResponse.json(
       {
         message: "User created successfully.",
         success: true,
-        user: saveNewUser,
+        user: savedUser,
       },
       { status: 201 }
     );
   } catch (error: any) {
+    console.error("Error creating user:", error);
     return NextResponse.json(
       {
         message: "Something went wrong while creating the user.",

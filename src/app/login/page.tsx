@@ -1,13 +1,13 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
-export default function Login() {
+const Login = () => {
   const router = useRouter();
-  const [user, setUser] = React.useState({
+  const [user, setUser] = useState({
     password: "",
     email: "",
   });
@@ -15,13 +15,16 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const onLogin = async (e: any) => {
-    e.preventDefault(); // Prevent default form submission behavior
+    e.preventDefault();
     try {
       setLoading(true);
       const response = await axios.post("/api/users/login", user);
       console.log("Login success", response.data);
+      localStorage.setItem("token", response.data.token);
       toast.success("Login Success.");
+
       router.push("/profile");
+      window.location.reload();
     } catch (error: any) {
       console.log("Login failed.", error.message);
       toast.error(error.message);
@@ -31,7 +34,6 @@ export default function Login() {
   };
 
   useEffect(() => {
-    // Validate Form data
     if (user.email.length > 0 && user.password.length > 0) {
       setButtonDisabled(false);
     } else {
@@ -40,7 +42,7 @@ export default function Login() {
   }, [user]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="sm:sm:min-h-[calc(100vh-152px)] min-h-[calc(100vh-120px)]  flex items-center justify-center bg-gray-100">
       <div className="bg-white text-gray-700 p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">
           {loading ? "Processing" : "Login"}
@@ -99,6 +101,9 @@ export default function Login() {
           </div>
         </form>
       </div>
+      <Toaster />
     </div>
   );
-}
+};
+
+export default Login;

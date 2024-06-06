@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -38,7 +38,7 @@ export default function Profile() {
       }
     } catch (error: any) {
       console.error("Logout error:", error.message);
-      toast.error("Logout failed.");
+      toast.error("Error!");
     }
   };
 
@@ -76,6 +76,7 @@ export default function Profile() {
           </button>
         </div>
       </div>
+      <Toaster />
     </div>
   );
 }
